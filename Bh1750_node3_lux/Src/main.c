@@ -43,6 +43,7 @@
 #include "SX1278.h"
 #include "ds18b20_mflib.h"
 #include "dwt_stm32_delay.h"
+#include "bh1750.h"
 
 
 /* USER CODE BEGIN Includes */
@@ -60,6 +61,8 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart1;
 
 I2C_HandleTypeDef hi2c2;
+I2C_HandleTypeDef hi2c1;
+
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -231,6 +234,7 @@ static void MX_TIM2_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_I2C2_Init(void);
 
+
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc);
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 
@@ -321,6 +325,10 @@ int main(void)
   MX_TIM2_Init();
   MX_USART1_UART_Init();
 	MX_I2C2_Init();
+	BH1750_Init();
+	BH1750_Start();
+	HAL_Delay(500);
+
 	//HAL_TIM_Base_Start(&htim2);
 	
   /* USER CODE BEGIN 2 */
@@ -359,17 +367,19 @@ int main(void)
 	}
 
 	///////
-		HAL_I2C_Master_Transmit(&hi2c2, BH1750_ADDR<<1,&MODE,1,100);// 1byte timeout la 100ms,dich 1 vi them 1 bit read va bh1750 chi co 7 bit
-		HAL_Delay(180);
-		HAL_I2C_Master_Receive(&hi2c2,(BH1750_ADDR<<1)|0x01,buffer_lux_8,2,100);
-		buffer_lux_16= (uint16_t)(buffer_lux_8[0]<<8)|(uint16_t)buffer_lux_8[1] ;    // doc 2 byte nen buffer[2], nen dich 8 bit cua buffer[0] va or voi buffer[1]
-		lux=(float)(buffer_lux_16)/1.2;
+//		HAL_I2C_Master_Transmit(&hi2c2, BH1750_ADDR<<1,&MODE,1,100);// 1byte timeout la 100ms,dich 1 vi them 1 bit read va bh1750 chi co 7 bit
+//		HAL_Delay(180);
+//		HAL_I2C_Master_Receive(&hi2c2,(BH1750_ADDR<<1)|0x01,buffer_lux_8,2,100);
+//		buffer_lux_16= (uint16_t)(buffer_lux_8[0]<<8)|(uint16_t)buffer_lux_8[1] ;    // doc 2 byte nen buffer[2], nen dich 8 bit cua buffer[0] va or voi buffer[1]
+//		lux=(float)(buffer_lux_16)/1.2;
 	//////
 	
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+		
+		lux = BH1750_Read();	
 
   /* USER CODE END WHILE */
 
@@ -414,19 +424,17 @@ int main(void)
 		
 		if (master == 1) {
 		
-		HAL_I2C_Master_Transmit(&hi2c2, BH1750_ADDR<<1,&MODE,1,100);// 1byte timeout la 100ms,dich 1 vi them 1 bit read va bh1750 chi co 7 bit
+/*		HAL_I2C_Master_Transmit(&hi2c2, BH1750_ADDR<<1,&MODE,1,100);// 1byte timeout la 100ms,dich 1 vi them 1 bit read va bh1750 chi co 7 bit
 		HAL_Delay(180);
 		HAL_I2C_Master_Receive(&hi2c2,(BH1750_ADDR<<1)|0x01,buffer_lux_8,2,100);
 		buffer_lux_16= (uint16_t)(buffer_lux_8[0]<<8)|(uint16_t)buffer_lux_8[1] ;    // doc 2 byte nen buffer[2], nen dich 8 bit cua buffer[0] va or voi buffer[1]
-		lux=(float)(buffer_lux_16)/1.2;
-		
-		
-				
+		lux=(float)(buffer_lux_16)/1.2; 
+*/
 				HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_13);
 				HAL_Delay(100);
 				HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_13);
 			
-			message_length = sprintf(buffer, "%d%d",ID_3,lux);
+			message_length = sprintf(buffer, "%d%d",ID_3,(int)lux);
 				
 			//message_length = sprintf(buffer, "NODE:%2d pH: %d.%2.0f  DO: %d.%2.0f ",message,pH_ng,pH_tp*100,DO_ng,DO_tp*100);
 			ret= SX1278_LoRaEntryTx(&SX1278, message_length, 2000);
@@ -509,16 +517,10 @@ void SystemClock_Config(void)
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 /*I2C init function*/
+
 static void MX_I2C2_Init(void)
 {
 
-  /* USER CODE BEGIN I2C2_Init 0 */
-
-  /* USER CODE END I2C2_Init 0 */
-
-  /* USER CODE BEGIN I2C2_Init 1 */
-
-  /* USER CODE END I2C2_Init 1 */
   hi2c2.Instance = I2C2;
   hi2c2.Init.ClockSpeed = 100000;
   hi2c2.Init.DutyCycle = I2C_DUTYCYCLE_2;
@@ -532,11 +534,9 @@ static void MX_I2C2_Init(void)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN I2C2_Init 2 */
-
-  /* USER CODE END I2C2_Init 2 */
 
 }
+
 /* ADC1 init function */
 
 static void MX_ADC1_Init(void)
@@ -706,6 +706,7 @@ static void MX_GPIO_Init(void)
 	
 	/*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8|GPIO_PIN_9, GPIO_PIN_RESET);
 	
 	/*Configure GPIO pin : TXRX */
 
@@ -748,9 +749,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(RESET_GPIO_Port, &GPIO_InitStruct);
 	
-	GPIO_InitStruct.Pin = GPIO_PIN_14;
+  GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 

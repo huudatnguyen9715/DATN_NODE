@@ -35,3 +35,4 @@ test_4\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 test_4\main.o: ../Inc/ds18b20_mflib.h
 test_4\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 test_4\main.o: ../Inc/dwt_stm32_delay.h
+test_4\main.o: ../Inc/bh1750.h

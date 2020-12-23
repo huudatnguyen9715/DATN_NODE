@@ -7,6 +7,7 @@
 "test_4\main.o"
 "test_4\stm32f1xx_it.o"
 "test_4\stm32f1xx_hal_msp.o"
+"test_4\bh1750.o"
 "test_4\stm32f1xx_hal_gpio_ex.o"
 "test_4\stm32f1xx_hal_adc.o"
 "test_4\stm32f1xx_hal_adc_ex.o"
@@ -27,6 +28,6 @@
 "test_4\stm32f1xx_hal_uart.o"
 "test_4\system_stm32f1xx.o"
 --library_type=microlib --strict --scatter "test_4\test_4.sct"
---summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
 --list "test_4.map" -o test_4\test_4.axf

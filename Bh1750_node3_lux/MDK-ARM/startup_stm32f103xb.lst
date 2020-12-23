@@ -495,13 +495,14 @@ ARM Macro Assembler    Page 8
   322 0000001C                 END
               00000000 
               00000000 
-Command Line: --debug --xref --cpu=Cortex-M3 --apcs=interwork --depend=test_4\s
-tartup_stm32f103xb.d -otest_4\startup_stm32f103xb.o -ID:\DATN\LVTN_DAT\NODE\Bh1
-750_node3_lux\MDK-ARM\RTE -IC:\Keil_v5\ARM\PACK\ARM\CMSIS\4.2.0\CMSIS\Include -
-IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.3.0 --predefine="__EVAL SETA 1" --pre
-define="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 513" --predefine
-="_RTE_ SETA 1" --predefine="STM32F10X_MD SETA 1" --list=startup_stm32f103xb.ls
-t startup_stm32f103xb.s
+Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
+ork --depend=test_4\startup_stm32f103xb.d -otest_4\startup_stm32f103xb.o -I.\RT
+E\_test_4 -I"C:\Users\VI LUAN\AppData\Local\Arm\Packs\ARM\CMSIS\5.6.0\CMSIS\Cor
+e\Include" -I"C:\Users\VI LUAN\AppData\Local\Arm\Packs\Keil\STM32F1xx_DFP\2.3.0
+\Device\Include" -I"C:\Users\VI LUAN\AppData\Local\Arm\Packs\Keil\STM32F1xx_DFP
+\2.3.0" --predefine="__EVAL SETA 1" --predefine="__MICROLIB SETA 1" --predefine
+="__UVISION_VERSION SETA 529" --predefine="_RTE_ SETA 1" --predefine="STM32F10X
+_MD SETA 1" --list=startup_stm32f103xb.lst startup_stm32f103xb.s
 
 
 
